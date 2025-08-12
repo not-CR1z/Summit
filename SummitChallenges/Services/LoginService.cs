@@ -5,17 +5,16 @@ namespace SummitChallenges.Services
 {
     public class LoginService
     {
-        public Boolean Login(String username, String password)
+        public string Login(String username, String password)
         {
             LdapValidator validator = new LdapValidator();
             Boolean validationSuccess = validator.ValidateUser(username, password);
             if (validationSuccess)
             {
                 ConnectionBD connectionBD = new ConnectionBD();
-                connectionBD.ExecuteQuery();
-                return true;
+                return connectionBD.LoginQuery(username);
             }
-            return false;
+            return String.Empty;
         }
     }
 }

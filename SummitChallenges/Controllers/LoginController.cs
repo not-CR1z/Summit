@@ -27,7 +27,7 @@ namespace SummitChallenges.Controllers
             {
                 LoginService loginService = new LoginService();
                 var validationState = loginService.Login(user.UserLogOn, user.Password);
-                if (validationState)
+                if (validationState != String.Empty)
                 {
                     return Ok(new { message = "Validación exitosa" });
                 }

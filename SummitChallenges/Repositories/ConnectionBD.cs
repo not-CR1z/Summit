@@ -1,53 +1,70 @@
 ﻿
 using Oracle.ManagedDataAccess.Client;
+using SummitChallenges.Models;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 namespace SummitChallenges.Repositories
 
 {
     public class ConnectionBD
     {
         private string connectionString = "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=wolf-rds-dev.apps.ambientesbc.com)(PORT=50214)))(CONNECT_DATA=(SERVICE_NAME=SIFNDCD)));User Id=cedurang;Password=Gato_2028";
-        private string _fScript = "SELECT * FROM BANCOL.USERS WHERE USER_ID = 5620000000080";
 
-        public void ExecuteQuery()
+        public string LoginQuery(String login)
         {
+
+            string userIdScript = $"SELECT ID FROM SIF.USERS WHERE LOGIN = '{login}'";
             using (OracleConnection conn = new OracleConnection(connectionString))
             {
                 try
                 {
-                    // Abrir la conexión
                     conn.Open();
-                    Console.WriteLine("Conexión exitosa a la base de datos Oracle");
-
-                    // Crear un comando SQL para ejecutar una consulta
-                    using (OracleCommand cmd = new OracleCommand(_fScript, conn))
+                    using (OracleCommand idcmd = new OracleCommand(userIdScript, conn))
                     {
-                        // Ejecutar la consulta y obtener un lector de datos
-                        using (OracleDataReader reader = cmd.ExecuteReader())
+                        var id = idcmd.ExecuteScalar();
+                        if (id != null)
                         {
-                            // Leer los resultados
-                            while (reader.Read())
+                            User retrieveUser = new User();
+
+                            string _userDetailsScript =
+                                "SELECT BU.USER_ID, BU.FIRST_NAME, BU.LAST_NAME, BU.T_SSN, R.NAME AS ROLE_NAME " +
+                                "FROM BANCOL.USERS BU " +
+                                "JOIN SIF.USER_ROLES UR ON BU.USER_ID = UR.USER_ID " +
+                                "JOIN SIF.ROLES R ON UR.ROLE_ID = R.ID WHERE BU.USER_ID = :UserId";
+
+                            using (OracleCommand usercmd = new OracleCommand(_userDetailsScript, conn))
                             {
-                                // Imprimir los datos de cada fila (puedes acceder por índice o por nombre de columna)
-                                Console.WriteLine($"NAME: {reader["FIRST_NAME"]}, LastName: {reader["LAST_NAME"]}, DOCUMENTO: {reader["T_SSN"]}");
+                                usercmd.Parameters.Add(new OracleParameter(":UserId", OracleDbType.Int32) { Value = id });
+
+                                using (OracleDataReader reader = usercmd.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        retrieveUser.Id = Convert.ToInt64(reader["USER_ID"]);
+                                        retrieveUser.FirstName = reader["FIRST_NAME"]?.ToString() ?? string.Empty;
+                                        retrieveUser.LastName = reader["LAST_NAME"]?.ToString() ?? string.Empty;
+                                        retrieveUser.Documento = reader["T_SSN"]?.ToString() ?? string.Empty;
+                                        retrieveUser.Rol = reader["ROLE_NAME"]?.ToString() ?? string.Empty;
+
+                                        return JsonSerializer.Serialize(retrieveUser);
+                                    }
+                                }
                             }
                         }
+                    return "El usaurio no se encuentra registrado";
                     }
                 }
                 catch (Exception ex)
                 {
-                    // Si ocurre un error, lo mostramos 
                     Console.WriteLine($"Error al conectar a la base de datos: {ex.Message}");
+                    return String.Empty;
                 }
                 finally
                 {
-                    // Asegurarse de cerrar la conexión cuando termine
                     conn.Close();
-                    Console.WriteLine("Conexión cerrada");
                 }
-                // Add logic to execute queries or interact with the database here  
             }
         }
     }
 
 }
-

@@ -24,12 +24,10 @@ namespace SummitChallenges.Utilities
             }
             catch (LdapException ex)
             {
-                Console.WriteLine($"Error al autenticar usuario: {ex.Message}");
                 return false;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error de conexión: {ex.Message}");
                 return false;
             }
         }
