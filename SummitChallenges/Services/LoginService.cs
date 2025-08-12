@@ -1,4 +1,5 @@
-﻿using SummitChallenges.Utilities;
+﻿using SummitChallenges.Repositories;
+using SummitChallenges.Utilities;
 
 namespace SummitChallenges.Services
 {
@@ -10,6 +11,8 @@ namespace SummitChallenges.Services
             Boolean validationSuccess = validator.ValidateUser(username, password);
             if (validationSuccess)
             {
+                ConnectionBD connectionBD = new ConnectionBD();
+                connectionBD.ExecuteQuery();
                 return true;
             }
             return false;

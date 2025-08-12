@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.DirectoryServices.Protocols;
-using System.Collections.Generic;
 
 namespace SummitChallenges.Utilities
 {
