@@ -1,2 +1,2 @@
 # SummitChallenges
-Retos semanales summit - proporcionados por Martín Reina
+Retos semanales summit by Martín Reina
