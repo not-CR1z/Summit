@@ -8,6 +8,6 @@
         public String FirstName { get; set; } = String.Empty;
         public String LastName { get; set; } = String.Empty;
         public String Documento { get; set; } = String.Empty;
-        public String Rol { get; set; } = String.Empty;
+        public String Role { get; set; } = String.Empty;
     }
 }

@@ -1,11 +1,12 @@
-﻿using SummitChallenges.Repositories;
+﻿using SummitChallenges.Models;
+using SummitChallenges.Repositories;
 using SummitChallenges.Utilities;
 
 namespace SummitChallenges.Services
 {
     public class LoginService
     {
-        public string Login(String username, String password)
+        public User? Login(String username, String password)
         {
             LdapValidator validator = new LdapValidator();
             Boolean validationSuccess = validator.ValidateUser(username, password);
@@ -14,7 +15,7 @@ namespace SummitChallenges.Services
                 ConnectionBD connectionBD = new ConnectionBD();
                 return connectionBD.LoginQuery(username);
             }
-            return String.Empty;
+            return null;
         }
     }
 }

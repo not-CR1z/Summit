@@ -8,9 +8,17 @@ namespace SummitChallenges.Repositories
 {
     public class ConnectionBD
     {
-        private string connectionString = "Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL=TCP)(HOST=wolf-rds-dev.apps.ambientesbc.com)(PORT=50214)))(CONNECT_DATA=(SERVICE_NAME=SIFNDCD)));User Id=cedurang;Password=Gato_2028";
+        private readonly string connectionString;
+        public ConnectionBD()
+        {
+            IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .Build();
+            connectionString = config.GetConnectionString("oracleConnection") ?? throw new InvalidOperationException("Connection string not found.");
+        }
 
-        public string LoginQuery(String login)
+        public User? LoginQuery(String login)
         {
 
             string userIdScript = $"SELECT ID FROM SIF.USERS WHERE LOGIN = '{login}'";
@@ -44,20 +52,20 @@ namespace SummitChallenges.Repositories
                                         retrieveUser.FirstName = reader["FIRST_NAME"]?.ToString() ?? string.Empty;
                                         retrieveUser.LastName = reader["LAST_NAME"]?.ToString() ?? string.Empty;
                                         retrieveUser.Documento = reader["T_SSN"]?.ToString() ?? string.Empty;
-                                        retrieveUser.Rol = reader["ROLE_NAME"]?.ToString() ?? string.Empty;
+                                        retrieveUser.Role = reader["ROLE_NAME"]?.ToString() ?? string.Empty;
 
-                                        return JsonSerializer.Serialize(retrieveUser);
+                                        return retrieveUser;
                                     }
                                 }
                             }
                         }
-                    return "El usaurio no se encuentra registrado";
+                    return null;
                     }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error al conectar a la base de datos: {ex.Message}");
-                    return String.Empty;
+                    return null;
                 }
                 finally
                 {

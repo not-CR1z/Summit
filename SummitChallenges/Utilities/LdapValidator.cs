@@ -22,12 +22,9 @@ namespace SummitChallenges.Utilities
                     return true;
                 }
             }
-            catch (LdapException ex)
-            {
-                return false;
-            }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message);
                 return false;
             }
         }

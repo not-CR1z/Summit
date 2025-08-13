@@ -1,38 +1,34 @@
 using Microsoft.AspNetCore.Mvc;
 using SummitChallenges.Models;
 using SummitChallenges.Services;
+using System;
+using System.Text.Json;
 
-namespace SummitChallenges.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class LoginController : ControllerBase
 {
-    [ApiController]
-    [Route("[controller]")]
-    public class LoginController : ControllerBase
+    private readonly string _secretKey;
+    public LoginController(IConfiguration config)
     {
-        private static readonly String[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        _secretKey = config.GetSection("settings").GetSection("secretKey").ToString()!;
+    }
 
-        private readonly ILogger<LoginController> _logger;
-
-        public LoginController(ILogger<LoginController> logger)
+    [HttpPost(Name = "login")]
+    public IActionResult Login(User user)
+    {
+        if (user != null)
         {
-            _logger = logger;
-        }
+            LoginService loginService = new LoginService();
+            var retrieveUser = loginService.Login(user.UserLogOn, user.Password);
 
-        [HttpPost(Name = "login")]
-        public async Task<IActionResult> Login(User user)
-        {
-            if (user != null)
+            if (retrieveUser != null)
             {
-                LoginService loginService = new LoginService();
-                var validationState = loginService.Login(user.UserLogOn, user.Password);
-                if (validationState != String.Empty)
-                {
-                    return Ok(new { message = "Validación exitosa" });
-                }
+                // Genera el JWT
+                var token = JwtUtilities.GenerateToken(_secretKey, retrieveUser.UserLogOn, retrieveUser.Role);
+                return Ok(new { user = JsonSerializer.Serialize(retrieveUser), token });
             }
-            return this.BadRequest(new { message = "Nombre de usuario o contaseña incorrectos" });
         }
+        return BadRequest(new { message = "Nombre de usuario o contraseña incorrectos" });
     }
 }
