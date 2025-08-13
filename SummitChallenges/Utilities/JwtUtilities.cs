@@ -6,13 +6,12 @@ using System.Text;
 
 public static class JwtUtilities
 {
-    public static string GenerateToken(string secretKey, string user, string role)
+    public static string GenerateToken(string secretKey, string content)
     {
         var key = Encoding.UTF8.GetBytes(secretKey);
 
         var claims = new ClaimsIdentity();
-        claims.AddClaim(new Claim(ClaimTypes.Name, user));
-        claims.AddClaim(new Claim(ClaimTypes.Role, role));
+        claims.AddClaim(new Claim(ClaimTypes.UserData, content));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {

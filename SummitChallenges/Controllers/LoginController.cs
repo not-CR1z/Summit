@@ -25,7 +25,7 @@ public class LoginController : ControllerBase
             if (retrieveUser != null)
             {
                 // Genera el JWT
-                var token = JwtUtilities.GenerateToken(_secretKey, retrieveUser.UserLogOn, retrieveUser.Role);
+                var token = JwtUtilities.GenerateToken(_secretKey, JsonSerializer.Serialize(retrieveUser));
                 return Ok(new { user = JsonSerializer.Serialize(retrieveUser), token });
             }
         }
