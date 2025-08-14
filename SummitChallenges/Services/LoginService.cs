@@ -12,7 +12,7 @@ namespace SummitChallenges.Services
             Boolean validationSuccess = validator.ValidateUser(username, password);
             if (validationSuccess)
             {
-                ConnectionBD connectionBD = new ConnectionBD();
+                InteractionBD connectionBD = new InteractionBD();
                 return connectionBD.LoginQuery(username);
             }
             return null;

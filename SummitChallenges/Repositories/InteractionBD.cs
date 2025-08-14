@@ -6,10 +6,10 @@ using System.Text.Json.Serialization;
 namespace SummitChallenges.Repositories
 
 {
-    public class ConnectionBD
+    public class InteractionBD
     {
         private readonly string connectionString;
-        public ConnectionBD()
+        public InteractionBD()
         {
             IConfiguration config = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
@@ -59,7 +59,7 @@ namespace SummitChallenges.Repositories
                                 }
                             }
                         }
-                    return null;
+                        return null;
                     }
                 }
                 catch (Exception ex)
@@ -73,6 +73,49 @@ namespace SummitChallenges.Repositories
                 }
             }
         }
-    }
 
+        public string GetJournalsByUser(string login)
+        {
+            string journalScript = "SELECT EXTERNAL_SEQUENCE, EXTERNAL_SERVICE_NAME, SERVICE_ID, START_DATE_TIME " +
+                "FROM SIF.JOURNAL " +
+                $"WHERE USER_LOGON = '{login}' " +
+                "ORDER BY START_DATE_TIME DESC " +
+                "FETCH FIRST 20 ROWS ONLY";
+
+            var journals = new List<Journal>();
+
+            using (OracleConnection conn = new OracleConnection(connectionString))
+            {
+                try
+                {
+                    conn.Open();
+                    using (OracleCommand cmd = new OracleCommand(journalScript, conn))
+                    using (OracleDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var journal = new Journal();
+
+                            journal.Secuence = Convert.ToInt64(reader["EXTERNAL_SEQUENCE"]);
+                            journal.Name = reader["EXTERNAL_SERVICE_NAME"]?.ToString();
+                            journal.Service = Convert.ToInt64(reader["SERVICE_ID"]);
+                            journal.Time = reader["START_DATE_TIME"].ToString();
+
+                            journals.Add(journal);
+                        }
+                    }
+                    return JsonSerializer.Serialize(journals);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error al conectar a la base de datos: {ex.Message}");
+                    return string.Empty;
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+        }
+    }
 }
