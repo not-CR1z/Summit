@@ -1,15 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using SummitChallenges.Models;
 using SummitChallenges.Services;
 using System.Text.Json;
 
 namespace SummitChallenges.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class JournalController : ControllerBase
     {
-        [HttpPost(Name = "getJournals")]
+        [HttpPost("invoicesGet")]
         public IActionResult GetJournals(User user)
         {
             JournalService journalService = new JournalService();
@@ -18,4 +20,3 @@ namespace SummitChallenges.Controllers
         }
     }
 }
-

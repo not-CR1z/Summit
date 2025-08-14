@@ -50,11 +50,11 @@ if (app.Environment.IsDevelopment())
 }
 
 
+app.UseCors("AllowAllOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseHttpsRedirection();
 
 app.MapControllers();
-app.UseCors("AllowAllOrigins");
 
 app.Run();
